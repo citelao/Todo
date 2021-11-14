@@ -1,7 +1,7 @@
 import React, { KeyboardEvent } from "react";
 import KeyCodes from "../utilities/KeyCodes";
 
-interface IItem {
+export interface IItem {
     id: any;
 
     // TODO: support typed data?
