@@ -13,6 +13,7 @@ interface IItem {
 
 interface ITreeViewProperties<T extends { [key: string]: any }> {
     items?: T[];
+    headers?: string[];
     renderItem?: (item: T, index: number) => IItem;
 }
 
@@ -35,9 +36,16 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
     public render() {
         const itemRenderer = this.props.renderItem || this.defaultRenderItem;
 
+        const defaultHeaders = Object.keys((this.props.items || [])[0]);
+        const headers = this.props.headers || defaultHeaders;
+
         return <table role="treegrid">
             <thead>
-
+                <tr>
+                    {headers.map((h, i) => {
+                        return <th key={i}>{h}</th>
+                    })}
+                </tr>
             </thead>
             <tbody>
                 {this.props.items?.map(itemRenderer).map(this.renderRow)}
