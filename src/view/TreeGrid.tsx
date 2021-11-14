@@ -2,7 +2,10 @@ import React, { KeyboardEvent } from "react";
 import KeyCodes from "../utilities/KeyCodes";
 
 interface IItem {
+    id: any;
 
+    // TODO: lots of work here.
+    // children?: IItem;
 }
 
 interface ITreeViewProperties {
@@ -11,6 +14,7 @@ interface ITreeViewProperties {
 
 interface ITreeViewState {
     selectedIndex: number;
+    focusMode: "rows" | "cells";
 }
 
 export default class TreeGrid extends React.Component<ITreeViewProperties, ITreeViewState> {
@@ -18,6 +22,9 @@ export default class TreeGrid extends React.Component<ITreeViewProperties, ITree
         super(props);
         this.state = {
             selectedIndex: 0,
+
+            // TODO: support changes
+            focusMode: "rows",
         };
     }
 
@@ -35,12 +42,12 @@ export default class TreeGrid extends React.Component<ITreeViewProperties, ITree
 
     private renderRow = (item: IItem, index: number) =>
     {
-        const isFocusedOnRows = true; // TODO
+        const isFocusedOnRows = this.state.focusMode === "rows";
         const isSelectedItem = index === this.state.selectedIndex;
         const hasChildren = false;
         const isExpanded = false; // TODO
         const level = 1 // TODO
-        const key = index; // TODO
+        const key = item.id;
         return <tr
             role="row"
             key={key}
