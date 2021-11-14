@@ -11,8 +11,9 @@ interface IItem {
     // children?: IItem;
 }
 
-interface ITreeViewProperties {
-    items?: IItem[];
+interface ITreeViewProperties<T extends { [key: string]: any }> {
+    items?: T[];
+    renderItem?: (item: T, index: number) => IItem;
 }
 
 interface ITreeViewState {
@@ -20,8 +21,8 @@ interface ITreeViewState {
     focusMode: "rows" | "cells";
 }
 
-export default class TreeGrid extends React.Component<ITreeViewProperties, ITreeViewState> {
-    constructor(props: ITreeViewProperties) {
+export default class TreeGrid<T extends { [key: string]: any }> extends React.Component<ITreeViewProperties<T>, ITreeViewState> {
+    constructor(props: ITreeViewProperties<T>) {
         super(props);
         this.state = {
             selectedIndex: 0,
@@ -31,14 +32,15 @@ export default class TreeGrid extends React.Component<ITreeViewProperties, ITree
         };
     }
 
-
     public render() {
+        const itemRenderer = this.props.renderItem || this.defaultRenderItem;
+
         return <table role="treegrid">
             <thead>
 
             </thead>
             <tbody>
-                {this.props.items?.map(this.renderRow)}
+                {this.props.items?.map(itemRenderer).map(this.renderRow)}
             </tbody>
         </table>;
     }
@@ -67,6 +69,14 @@ export default class TreeGrid extends React.Component<ITreeViewProperties, ITree
                 })}
         </tr>;
     }
+
+    private defaultRenderItem = (item: T, index: number): IItem => {
+        const keys = Object.keys(item);
+        return {
+            id: index,
+            data: keys.map((k) => item[k])
+        }
+    };
 
     private handleRowKeyDown = (e: KeyboardEvent<HTMLElement>) => {
         switch (e.key) {
