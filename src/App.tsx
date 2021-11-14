@@ -1,13 +1,9 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import TodoApp from './model/TodoApp';
 
-const todos = [
-  { id: 0, title: "Pick up eggs", },
-  { id: 1, title: "Grocery shop", },
-  { id: 2, title: "Dance", },
-  { id: 3, title: "Fly", },
-];
+const todo = new TodoApp();
 
 function App() {
   return (
@@ -22,11 +18,12 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {todos.map((t) => {
+          {todo.getTodos().map((t) => {
             return <tr key={t.id}>
               <td><input type="checkbox" /></td>
               <td>{t.title}</td>
-              <td>&nbsp;</td>
+              <td>{(t.startDate ?? "").toString()}</td>
+              <td>{(t.dueDate ?? "").toString()}</td>
             </tr>;
           })}
         </tbody>
