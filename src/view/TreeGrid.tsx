@@ -36,12 +36,14 @@ export default class TreeGrid extends React.Component<ITreeViewProperties, ITree
     private renderRow = (item: IItem, index: number) =>
     {
         const isFocusedOnRows = true; // TODO
-        const isSelectedItem = index == this.state.selectedIndex; // TODO
+        const isSelectedItem = index === this.state.selectedIndex;
         const hasChildren = false;
         const isExpanded = false; // TODO
-        const level = 1; // TODO
+        const level = 1 // TODO
+        const key = index; // TODO
         return <tr
             role="row"
+            key={key}
             tabIndex={(isSelectedItem) ? 0 : -1}
             aria-expanded={(hasChildren) ? isFocusedOnRows && isExpanded : undefined}
             aria-level={level}
@@ -60,35 +62,43 @@ export default class TreeGrid extends React.Component<ITreeViewProperties, ITree
     private handleRowKeyDown = (e: KeyboardEvent<HTMLElement>) => {
         switch (e.key) {
             case KeyCodes.ArrowUp:
-                {
-                    if (this.state.selectedIndex === 0) {
-                        return;
-                    }
-                    const item = e.target as HTMLElement;
-                    const newItem = item.parentElement?.children[this.state.selectedIndex - 1] as HTMLElement;
-                    newItem.focus();
-                    this.setState({
-                        selectedIndex: this.state.selectedIndex - 1
-                    });
-                }
+                this.selectItem(e.currentTarget, this.state.selectedIndex - 1);
                 break;
 
             case KeyCodes.ArrowDown:
-                {
-                    if (this.state.selectedIndex === (this.props.items?.length || 0) - 1) {
-                        return;
-                    }
-                    const item = e.target as HTMLElement;
-                    const newItem = item.parentElement?.children[this.state.selectedIndex + 1] as HTMLElement;
-                    newItem.focus();
-                    this.setState({
-                        selectedIndex: this.state.selectedIndex + 1
-                    });
-                }
+                this.selectItem(e.currentTarget, this.state.selectedIndex + 1);
+                break;
+
+            case KeyCodes.Home:
+                this.selectItem(e.currentTarget, 0);
+                break;
+
+            case KeyCodes.End:
+                this.selectItem(e.currentTarget, this.props.items!.length - 1);
                 break;
 
             default:
                 console.log(e.key);
         }
+    }
+
+    private getAdjacentElement(el: Element, startingIndex: number, offset: number): Element {
+        return el.parentElement!.children[startingIndex + offset];
+    }
+
+    private selectItem = (currentTarget: HTMLElement, index: number) => {
+        if (index < 0) {
+            return;
+        }
+
+        if (index >= (this.props.items?.length || 0)) {
+            return;
+        }
+
+        const newItem = currentTarget.parentElement!.children[index] as HTMLElement;
+        newItem.focus();
+        this.setState({
+            selectedIndex: index
+        });
     }
 }

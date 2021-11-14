@@ -4,6 +4,8 @@ const KeyCodes = {
     ArrowLeft: "ArrowLeft",
     ArrowRight: "ArrowRight",
     Enter: "Enter",
+    Home: "Home",
+    End: "End",
 };
 
 export default KeyCodes;
