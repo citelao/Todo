@@ -1,4 +1,4 @@
-import React, { KeyboardEvent } from "react";
+import React, { KeyboardEvent, ReactElement } from "react";
 import KeyCodes from "../utilities/KeyCodes";
 
 export interface IItem {
@@ -7,8 +7,7 @@ export interface IItem {
     // TODO: support typed data?
     data: any[];
 
-    // TODO: lots of work here.
-    // children?: IItem;
+    children?: IItem[];
 }
 
 interface ITreeViewProperties<T extends { [key: string]: any }> {
@@ -42,6 +41,9 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         return <table role="treegrid">
             <thead>
                 <tr>
+                    {/* Indentation header */}
+                    <th>&nbsp;</th>
+
                     {headers.map((h, i) => {
                         return <th key={i}>{h}</th>
                     })}
@@ -53,29 +55,33 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         </table>;
     }
 
-    private renderRow = (item: IItem, index: number) =>
+    private renderRow = (item: IItem, index: number, array: IItem[], level = 1): ReactElement =>
     {
         const isFocusedOnRows = this.state.focusMode === "rows";
         const isSelectedItem = index === this.state.selectedIndex;
         const hasChildren = false;
-        const isExpanded = false; // TODO
-        const level = 1 // TODO
+        const isExpanded = true; // TODO
         const key = item.id;
-        return <tr
-            role="row"
-            key={key}
-            tabIndex={(isSelectedItem) ? 0 : -1}
-            aria-expanded={(hasChildren) ? isFocusedOnRows && isExpanded : undefined}
-            aria-level={level}
-            aria-posinset={index + 1}
-            aria-setsize={this.props.items!.length}
-            onKeyDown={this.handleRowKeyDown}>
-                { item.data.map((d) => {
-                    return <td role="gridcell">
-                        {d}
-                    </td>;
-                })}
-        </tr>;
+        const renderChildRow = (item: IItem, index: number, array: IItem[]) => { return this.renderRow(item, index, array, level + 1) };
+        return <>
+            <tr
+                role="row"
+                key={key}
+                tabIndex={(isSelectedItem) ? 0 : -1}
+                aria-expanded={(hasChildren) ? isFocusedOnRows && isExpanded : undefined}
+                aria-level={level}
+                aria-posinset={index + 1}
+                aria-setsize={this.props.items!.length}
+                onKeyDown={this.handleRowKeyDown}>
+                    <td>{"...".repeat(level)}</td>
+                    { item.data.map((d) => {
+                        return <td role="gridcell">
+                            {d}
+                        </td>;
+                    })}
+            </tr>
+            {isExpanded ? item.children?.map(renderChildRow) : undefined}
+        </>;
     }
 
     private defaultRenderItem = (item: T, index: number): IItem => {

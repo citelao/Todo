@@ -14,7 +14,8 @@ function renderItem(todo: ITodo): IItem {
       todo.title,
       "start",
       "due",
-    ]
+    ],
+    children: todo.children?.map(renderItem)
   }
 }
 
