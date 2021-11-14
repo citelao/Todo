@@ -105,8 +105,9 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
     {
         const isFocusedOnRows = this.state.focusMode === "rows";
         const isSelectedItem = index === this.state.selectedIndex;
-        const hasChildren = false;
+        const hasChildren = item.children && item.children.length !== 0;
         const isExpanded = this.state.expandedItems.indexOf(item.id) !== -1;
+        const expansionSymbol = (isExpanded) ? "▾" : "▸";
         const key = item.id;
         const renderChildRow = (item: IItem, index: number, array: IItem[]) => { return this.renderRow(item, index, array, level + 1) };
         return <>
@@ -119,7 +120,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
                 aria-posinset={index + 1}
                 aria-setsize={array.length}
                 onKeyDown={(e) => this.handleRowKeyDown(e, item)}>
-                    <td>{"...".repeat(level)}</td>
+                    <td>{"...".repeat(level)} {(hasChildren) ? expansionSymbol : undefined}</td>
                     { item.data.map((d) => {
                         return <td role="gridcell">
                             {d}
@@ -172,6 +173,10 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
             case KeyCodes.ArrowRight:
                 {
                     // TODO: avoid adding the item to expanded if we already have it there.
+                    if (!targetItem.children || targetItem.children.length === 0) {
+                        break;
+                    }
+
                     this.setState({
                         expandedItems: [targetItem.id, ... this.state.expandedItems],
                     });
@@ -180,6 +185,10 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
 
             case KeyCodes.ArrowLeft:
                 {
+                    if (!targetItem.children || targetItem.children.length === 0) {
+                        break;
+                    }
+
                     // TODO: avoid adding the item to expanded if we already have it there.
                     this.setState({
                         expandedItems: this.state.expandedItems.filter((id) => id !== targetItem.id),
