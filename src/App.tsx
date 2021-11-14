@@ -9,6 +9,7 @@ const todo = new TodoApp();
 function App() {
   return (
     <div className="App">
+      <TreeGrid items={todo.getTodos()} />
       <table>
         <thead>
           <tr>
@@ -29,7 +30,6 @@ function App() {
           })}
         </tbody>
       </table>
-      <TreeGrid items={todo.getTodos()} />
     </div>
   );
 }
