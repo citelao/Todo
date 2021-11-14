@@ -19,7 +19,10 @@ interface ITreeViewProperties<T extends { [key: string]: any }> {
 interface ITreeViewState {
     selectedIndex: number;
     renderedItemCount: number;
+
     focusMode: "rows" | "cells";
+
+    expandedItems: number[];
 }
 
 export default class TreeGrid<T extends { [key: string]: any }> extends React.Component<ITreeViewProperties<T>, ITreeViewState> {
@@ -31,10 +34,12 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
 
             // TODO: support changes
             focusMode: "rows",
+
+            expandedItems: [],
         };
     }
 
-    public render() {
+    public render = () => {
         const itemRenderer = this.props.renderItem || this.defaultRenderItem;
 
         const defaultHeaders = Object.keys((this.props.items || [])[0]);
@@ -62,7 +67,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         const isFocusedOnRows = this.state.focusMode === "rows";
         const isSelectedItem = index === this.state.selectedIndex;
         const hasChildren = false;
-        const isExpanded = true; // TODO
+        const isExpanded = this.state.expandedItems.indexOf(item.id) !== -1;
         const key = item.id;
         const renderChildRow = (item: IItem, index: number, array: IItem[]) => { return this.renderRow(item, index, array, level + 1) };
         return <>
@@ -136,8 +141,13 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
     private getRenderedItemCount = (list: IItem[]): number => {
         const filterList = list || this.props.items?.map(this.props.renderItem || this.defaultRenderItem) || [];
         return filterList.reduce<number>((acc, item) => {
-            const childCount = this.getRenderedItemCount(item.children || []);
-            return acc + 1 + childCount;
+            const isExpanded = this.state && this.state.expandedItems.indexOf(item.id) !== -1;
+            if (isExpanded) {
+                const childCount = this.getRenderedItemCount(item.children || []);
+                return acc + 1 + childCount;
+            } else {
+                return acc + 1;
+            }
         }, 0);
     }
 }
