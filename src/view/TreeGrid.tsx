@@ -27,6 +27,10 @@ interface ITreeViewState {
     expandedItems: number[];
 }
 
+interface ITreeViewSnapshot {
+    action: "recalculate_render_count"
+}
+
 export default class TreeGrid<T extends { [key: string]: any }> extends React.Component<ITreeViewProperties<T>, ITreeViewState> {
     constructor(props: ITreeViewProperties<T>) {
         super(props);
@@ -126,6 +130,26 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         </>;
     }
 
+    public getSnapshotBeforeUpdate(prevProps: Readonly<ITreeViewProperties<T>>, prevState: Readonly<ITreeViewState>): ITreeViewSnapshot | null {
+        const didUpdateExpandedItems = this.state.expandedItems.length !== prevState.expandedItems.length;
+        const shouldRunComponentDidUpdate = didUpdateExpandedItems;
+        if (shouldRunComponentDidUpdate) {
+            return {
+                action: "recalculate_render_count"
+            };
+        } else {
+            return null;
+        }
+    }
+
+    public componentDidUpdate(prevProps: Readonly<ITreeViewProperties<T>>, prevState: Readonly<ITreeViewState>, snapshot?: ITreeViewSnapshot): void {
+        if (snapshot?.action === "recalculate_render_count") {
+            // Recalculate the number of expanded items:
+            this.setState({
+                renderedItemCount: TreeGrid.getRenderedItemCount(this.state.renderedItems, this.state.expandedItems),
+            });
+        }
+    }
 
     private handleRowKeyDown = (e: KeyboardEvent<HTMLElement>) => {
         switch (e.key) {
