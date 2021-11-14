@@ -118,7 +118,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
                 aria-level={level}
                 aria-posinset={index + 1}
                 aria-setsize={array.length}
-                onKeyDown={this.handleRowKeyDown}>
+                onKeyDown={(e) => this.handleRowKeyDown(e, item)}>
                     <td>{"...".repeat(level)}</td>
                     { item.data.map((d) => {
                         return <td role="gridcell">
@@ -151,7 +151,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         }
     }
 
-    private handleRowKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+    private handleRowKeyDown = (e: KeyboardEvent<HTMLElement>, targetItem: IItem) => {
         switch (e.key) {
             case KeyCodes.ArrowUp:
                 this.selectItem(e.currentTarget, this.state.selectedIndex - 1);
@@ -171,22 +171,18 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
 
             case KeyCodes.ArrowRight:
                 {
-                    // TODO check contains
-                    const selectedItem = this.state.renderedItems[this.state.selectedIndex]!;
+                    // TODO: avoid adding the item to expanded if we already have it there.
                     this.setState({
-                        expandedItems: [selectedItem.id, ... this.state.expandedItems],
-                        // renderedItemCount: this.getRenderedItemCount(this.props.items?.map(this.props.renderItem || this.defaultRenderItem) || []),
+                        expandedItems: [targetItem.id, ... this.state.expandedItems],
                     });
                 }
                 break;
 
             case KeyCodes.ArrowLeft:
                 {
-                    // TODO check contains
-                    const selectedItem = this.state.renderedItems[this.state.selectedIndex]!;
+                    // TODO: avoid adding the item to expanded if we already have it there.
                     this.setState({
-                        expandedItems: this.state.expandedItems.filter((id) => id !== selectedItem.id),
-                        // renderedItemCount: this.getRenderedItemCount(this.props.items?.map(this.props.renderItem || this.defaultRenderItem) || []),
+                        expandedItems: this.state.expandedItems.filter((id) => id !== targetItem.id),
                     });
                 }
                 break;
