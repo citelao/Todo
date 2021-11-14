@@ -1,6 +1,8 @@
 import React, { KeyboardEvent, ReactElement } from "react";
 import KeyCodes from "../utilities/KeyCodes";
 
+import './TreeGrid.css';
+
 export interface IItem {
     id: any;
 
@@ -86,12 +88,12 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
 
         return <table role="treegrid">
             <thead>
-                <tr>
+                <tr role="row">
                     {/* Indentation header */}
                     <th>&nbsp;</th>
 
                     {headers.map((h, i) => {
-                        return <th key={i}>{h}</th>
+                        return <th key={i} role="columnheader">{h}</th>
                     })}
                 </tr>
             </thead>
@@ -104,7 +106,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
     private renderRow = (item: IItem, index: number, array: IItem[], level = 1): ReactElement =>
     {
         const isFocusedOnRows = this.state.focusMode === "rows";
-        const isSelectedItem = index === this.state.selectedIndex;
+        const isSelectedItem = index === this.state.selectedIndex; // TODO
         const hasChildren = item.children && item.children.length !== 0;
         const isExpanded = this.state.expandedItems.indexOf(item.id) !== -1;
         const expansionSymbol = (isExpanded) ? "▾" : "▸";
@@ -119,8 +121,9 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
                 aria-level={level}
                 aria-posinset={index + 1}
                 aria-setsize={array.length}
+                onClick={(e) => this.selectItem(e.currentTarget, index)}
                 onKeyDown={(e) => this.handleRowKeyDown(e, item)}>
-                    <td>{"...".repeat(level)} {(hasChildren) ? expansionSymbol : undefined}</td>
+                    <td role="gridcell">{"...".repeat(level)} {(hasChildren) ? expansionSymbol : undefined}</td>
                     { item.data.map((d) => {
                         return <td role="gridcell">
                             {d}
@@ -186,6 +189,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
             case KeyCodes.ArrowLeft:
                 {
                     if (!targetItem.children || targetItem.children.length === 0) {
+                        // TODO: should collapse up to parent.
                         break;
                     }
 

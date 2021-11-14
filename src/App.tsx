@@ -27,26 +27,6 @@ function App() {
         renderItem={renderItem}
         headers={["", "", "Start date", "Due date"]}
       />
-      <table>
-        <thead>
-          <tr>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
-            <th>Start date</th>
-            <th>Due date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {todo.getTodos().map((t) => {
-            return <tr key={t.id}>
-              <td><input type="checkbox" /></td>
-              <td>{t.title}</td>
-              <td>{(t.startDate ?? "").toString()}</td>
-              <td>{(t.dueDate ?? "").toString()}</td>
-            </tr>;
-          })}
-        </tbody>
-      </table>
     </div>
   );
 }
