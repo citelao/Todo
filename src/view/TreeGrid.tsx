@@ -47,7 +47,7 @@ export default class TreeGrid extends React.Component<ITreeViewProperties, ITree
             aria-level={level}
             aria-posinset={index + 1}
             aria-setsize={this.props.items!.length}
-            onKeyUp={this.handleRowKeyUp}>
+            onKeyDown={this.handleRowKeyDown}>
             <td role="gridcell">
                 Todo
             </td>
@@ -57,10 +57,13 @@ export default class TreeGrid extends React.Component<ITreeViewProperties, ITree
         </tr>;
     }
 
-    private handleRowKeyUp = (e: KeyboardEvent<HTMLElement>) => {
+    private handleRowKeyDown = (e: KeyboardEvent<HTMLElement>) => {
         switch (e.key) {
             case KeyCodes.ArrowUp:
                 {
+                    if (this.state.selectedIndex === 0) {
+                        return;
+                    }
                     const item = e.target as HTMLElement;
                     const newItem = item.parentElement?.children[this.state.selectedIndex - 1] as HTMLElement;
                     newItem.focus();
@@ -72,6 +75,9 @@ export default class TreeGrid extends React.Component<ITreeViewProperties, ITree
 
             case KeyCodes.ArrowDown:
                 {
+                    if (this.state.selectedIndex === (this.props.items?.length || 0) - 1) {
+                        return;
+                    }
                     const item = e.target as HTMLElement;
                     const newItem = item.parentElement?.children[this.state.selectedIndex + 1] as HTMLElement;
                     newItem.focus();
