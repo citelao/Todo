@@ -4,6 +4,9 @@ import KeyCodes from "../utilities/KeyCodes";
 interface IItem {
     id: any;
 
+    // TODO: support typed data?
+    data: any[];
+
     // TODO: lots of work here.
     // children?: IItem;
 }
@@ -57,12 +60,11 @@ export default class TreeGrid extends React.Component<ITreeViewProperties, ITree
             aria-posinset={index + 1}
             aria-setsize={this.props.items!.length}
             onKeyDown={this.handleRowKeyDown}>
-            <td role="gridcell">
-                Todo
-            </td>
-            <td role="gridcell">
-                Todo
-            </td>
+                { item.data.map((d) => {
+                    return <td role="gridcell">
+                        {d}
+                    </td>;
+                })}
         </tr>;
     }
 

@@ -9,7 +9,12 @@ const todo = new TodoApp();
 function App() {
   return (
     <div className="App">
-      <TreeGrid items={todo.getTodos()} />
+      <TreeGrid items={todo.getTodos().map((t) => {
+        return {
+          id: t.id,
+          data: [t.title]
+        };
+      })} />
       <table>
         <thead>
           <tr>
