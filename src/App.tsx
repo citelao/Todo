@@ -12,11 +12,25 @@ const todos = [
 function App() {
   return (
     <div className="App">
-      <ul>
-        {todos.map((t) => {
-          return <li key={t.id}>{t.title}</li>;
-        })}
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <th>Start date</th>
+            <th>Due date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {todos.map((t) => {
+            return <tr key={t.id}>
+              <td><input type="checkbox" /></td>
+              <td>{t.title}</td>
+              <td>&nbsp;</td>
+            </tr>;
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
