@@ -2,6 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import TodoApp from './model/TodoApp';
+import TreeGrid from './view/TreeGrid';
 
 const todo = new TodoApp();
 
@@ -28,6 +29,7 @@ function App() {
           })}
         </tbody>
       </table>
+      <TreeGrid items={todo.getTodos()} />
     </div>
   );
 }
