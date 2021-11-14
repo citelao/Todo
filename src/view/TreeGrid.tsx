@@ -18,6 +18,7 @@ interface ITreeViewProperties<T extends { [key: string]: any }> {
 
 interface ITreeViewState {
     selectedIndex: number;
+    renderedItemCount: number;
     focusMode: "rows" | "cells";
 }
 
@@ -26,6 +27,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         super(props);
         this.state = {
             selectedIndex: 0,
+            renderedItemCount: this.getRenderedItemCount(this.props.items?.map(this.props.renderItem || this.defaultRenderItem) || []),
 
             // TODO: support changes
             focusMode: "rows",
@@ -71,7 +73,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
                 aria-expanded={(hasChildren) ? isFocusedOnRows && isExpanded : undefined}
                 aria-level={level}
                 aria-posinset={index + 1}
-                aria-setsize={this.props.items!.length}
+                aria-setsize={array.length}
                 onKeyDown={this.handleRowKeyDown}>
                     <td>{"...".repeat(level)}</td>
                     { item.data.map((d) => {
@@ -107,7 +109,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
                 break;
 
             case KeyCodes.End:
-                this.selectItem(e.currentTarget, this.props.items!.length - 1);
+                this.selectItem(e.currentTarget, this.state.renderedItemCount - 1);
                 break;
 
             default:
@@ -115,16 +117,12 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         }
     }
 
-    private getAdjacentElement(el: Element, startingIndex: number, offset: number): Element {
-        return el.parentElement!.children[startingIndex + offset];
-    }
-
     private selectItem = (currentTarget: HTMLElement, index: number) => {
         if (index < 0) {
             return;
         }
 
-        if (index >= (this.props.items?.length || 0)) {
+        if (index >= this.state.renderedItemCount) {
             return;
         }
 
@@ -133,5 +131,13 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         this.setState({
             selectedIndex: index
         });
+    }
+
+    private getRenderedItemCount = (list: IItem[]): number => {
+        const filterList = list || this.props.items?.map(this.props.renderItem || this.defaultRenderItem) || [];
+        return filterList.reduce<number>((acc, item) => {
+            const childCount = this.getRenderedItemCount(item.children || []);
+            return acc + 1 + childCount;
+        }, 0);
     }
 }

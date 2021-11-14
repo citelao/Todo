@@ -20,6 +20,7 @@ export default class TodoApp {
             { id: 1, title: "Grocery shop", },
             { id: 2, title: "Dance", },
             { id: 3, title: "Fly", },
+            { id: 4, title: "dance", },
         ];
         return todos;
     }
