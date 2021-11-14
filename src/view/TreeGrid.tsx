@@ -16,9 +16,19 @@ export default class TreeGrid extends React.Component<ITreeViewProperties, ITree
             </thead>
             <tbody>
                 {this.props.items?.map((item, i) => {
+                    const isFocusedOnRows = true; // TODO
                     const isSelectedItem = i == 0; // TODO
-                    return <tr role="row" tabIndex={(isSelectedItem) ? 0 : -1}>
-                        <td>
+                    const hasChildren = false;
+                    const isExpanded = false; // TODO
+                    const level = 1; // TODO
+                    return <tr
+                        role="row"
+                        tabIndex={(isSelectedItem) ? 0 : -1}
+                        aria-expanded={(hasChildren) ? isFocusedOnRows && isExpanded : undefined}
+                        aria-level={level}
+                        aria-posinset={i + 1}
+                        aria-setsize={this.props.items!.length}>
+                        <td role="gridcell">
                             Todo
                         </td>
                     </tr>;
