@@ -74,7 +74,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         return items.reduce<{ index: number, items: IInternalItem[] }>((acc, item, index, array) => {
             const isRendered = acc.index !== DONT_RENDER_CHILDREN_SIGIL;
             const renderedIndex = (isRendered) ? acc.index : DONT_RENDER_CHILDREN_SIGIL;
-            const shouldRenderChildren = (expandedItems.indexOf(item.id) !== -1);
+            const shouldRenderChildren = (isRendered && expandedItems.indexOf(item.id) !== -1);
             const startingRenderIndex = (shouldRenderChildren) ? renderedIndex + 1 : DONT_RENDER_CHILDREN_SIGIL;
             const renderedChildren = this.convertToInternalItems(item.children || [], startingRenderIndex, expandedItems);
             const internalItem: IInternalItem = {
