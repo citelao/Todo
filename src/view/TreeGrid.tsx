@@ -226,6 +226,9 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
             return;
         }
 
+        // TODO: set tabindex to -1 on all tabbable items within the old row.
+        // TODO: restore tabindex to all tabbable items within the new row.
+
         const newItem = currentTarget.parentElement!.children[index] as HTMLElement;
         newItem.focus();
         this.setState({

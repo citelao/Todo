@@ -6,29 +6,59 @@ import TreeGrid, { IItem } from './view/TreeGrid';
 
 const todo = new TodoApp();
 
+interface ITodoTextProperties {
+    text: string;
+}
+
+interface ITodoTextState {
+    isEditing: boolean;
+}
+
+class TodoText extends React.Component<ITodoTextProperties, ITodoTextState> {
+    public constructor(props: ITodoTextProperties) {
+        super(props);
+        this.state = {
+            isEditing: true
+        };
+    }
+
+    public render() {
+        // if (this.state.isEditing) {
+            return <input type="text" value={this.props.text} onBlur={ () => { this.setState({ isEditing: false }) }} />
+        // }
+
+        // return (
+        //     <span onDoubleClick={() => { this.setState({ isEditing: true }) }}>
+        //         {this.props.text}
+        //     </span>
+        // );
+    }
+}
+
 function renderItem(todo: ITodo): IItem {
-  return {
-    id: todo.id,
-    data: [
-      <input type="checkbox" tabIndex={-1} />,
-      todo.title,
-      "start",
-      "due",
-    ],
-    children: todo.children?.map(renderItem)
-  }
+    return {
+        id: todo.id,
+        data: [
+            <input type="checkbox" tabIndex={-1} />,
+            <TodoText text={todo.title} />,
+            "start",
+            "due",
+        ],
+        children: todo.children?.map(renderItem)
+    }
 }
 
 function App() {
-  return (
-    <div className="App">
-      <TreeGrid
+    return (
+        <div className="App">
+        <TreeGrid
         items={todo.getTodos()}
         renderItem={renderItem}
         headers={["", "", "Start date", "Due date"]}
-      />
-    </div>
-  );
-}
-
-export default App;
+        />
+        </div>
+        );
+    }
+    
+    export default App;
+    
