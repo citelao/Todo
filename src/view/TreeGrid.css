@@ -1,3 +1,11 @@
 table[role="treegrid"] [role=row][tabIndex="0"]:focus{
     background-color: rgba(0, 0, 0, 0.5);
 }
+
+.expandButton {
+    appearance: unset;
+    border: none;
+    background: none;
+    color: inherit;
+    font-size: inherit;
+}

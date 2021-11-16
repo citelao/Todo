@@ -147,9 +147,11 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
                 onKeyDown={(e) => this.handleRowKeyDown(e, item)}>
                     <td role="gridcell">
                         {"...".repeat(level)}
-                        <button tabIndex={-1} onClick={(isExpanded)
-                            ? () => this.collapseItem(item)
-                            : () => this.expandItem(item) }>
+                        <button tabIndex={-1}
+                            className="expandButton"
+                            onClick={(isExpanded)
+                                ? () => this.collapseItem(item)
+                                : () => this.expandItem(item) }>
                             {(hasChildren) ? expansionSymbol : undefined}
                         </button>
                     </td>
