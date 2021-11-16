@@ -12,6 +12,12 @@ export interface IItem {
     children?: IItem[];
 }
 
+interface IInternalItem extends IItem {
+    renderedIndex: number | null;
+
+    children?: IInternalItem[];
+}
+
 interface ITreeViewProperties<T extends { [key: string]: any }> {
     items?: T[];
     headers?: string[];
@@ -19,7 +25,7 @@ interface ITreeViewProperties<T extends { [key: string]: any }> {
 }
 
 interface ITreeViewState {
-    renderedItems: IItem[];
+    renderedItems: IInternalItem[];
 
     selectedIndex: number;
     renderedItemCount: number;
@@ -42,7 +48,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         const renderedItems = nextProps.items?.map(nextProps.renderItem || TreeGrid.defaultRenderItem) || [];
         const expandedItems = prevState?.expandedItems || [];
         return {
-            renderedItems: renderedItems,
+            renderedItems: TreeGrid.convertToInternalItems(renderedItems, 0, prevState?.expandedItems).items,
 
             selectedIndex: prevState?.selectedIndex || 0,
             renderedItemCount: TreeGrid.getRenderedItemCount(renderedItems, expandedItems),
@@ -60,6 +66,30 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
             data: keys.map((k) => item[k])
         }
     };
+
+    private static convertToInternalItems(items: IItem[], startingIndex: number, expandedItems: number[] = []): { index: number, items: IInternalItem[] } {
+        const DONT_RENDER_CHILDREN_SIGIL = -1;
+
+        // Do a reduce to actually track the stuff we need throughout this operation.
+        return items.reduce<{ index: number, items: IInternalItem[] }>((acc, item, index, array) => {
+            const isRendered = acc.index !== DONT_RENDER_CHILDREN_SIGIL;
+            const renderedIndex = (isRendered) ? acc.index : DONT_RENDER_CHILDREN_SIGIL;
+            const shouldRenderChildren = (expandedItems.indexOf(item.id) !== -1);
+            const startingRenderIndex = (shouldRenderChildren) ? renderedIndex + 1 : DONT_RENDER_CHILDREN_SIGIL;
+            const renderedChildren = this.convertToInternalItems(item.children || [], startingRenderIndex, expandedItems);
+            const internalItem: IInternalItem = {
+                id: item.id,
+                data: item.data,
+                children: renderedChildren.items,
+                renderedIndex: renderedIndex,
+            };
+
+            return {
+                index: (shouldRenderChildren) ? renderedChildren.index : acc.index + 1,
+                items: [... acc.items, internalItem],
+            };
+        }, { index: startingIndex, items: [] });
+    }
 
     private static getRenderedItemCount(list: IItem[], expandedItems: number[]): number {
         return list.reduce<number>((acc, item) => {
@@ -94,16 +124,16 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         </table>;
     }
 
-    private renderRow = (item: IItem, index: number, array: IItem[], level = 1): ReactElement =>
+    private renderRow = (item: IInternalItem, index: number, array: IInternalItem[], level = 1): ReactElement =>
     {
         const isFocusedOnRows = this.state.focusMode === "rows";
-        const overallIndex = index; // TODO: we need to get the actual overall index here.
+        const overallIndex = item.renderedIndex!;
         const isSelectedItem = overallIndex === this.state.selectedIndex;
         const hasChildren = item.children && item.children.length !== 0;
         const isExpanded = this.state.expandedItems.indexOf(item.id) !== -1;
         const expansionSymbol = (isExpanded) ? "▾" : "▸";
         const key = item.id;
-        const renderChildRow = (item: IItem, index: number, array: IItem[]) => { return this.renderRow(item, index, array, level + 1) };
+        const renderChildRow = (item: IInternalItem, index: number, array: IInternalItem[]) => { return this.renderRow(item, index, array, level + 1) };
         return <>
             <tr
                 role="row"
