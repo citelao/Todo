@@ -145,7 +145,14 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
                 aria-setsize={array.length}
                 onClick={(e) => this.selectItem(e.currentTarget, overallIndex)}
                 onKeyDown={(e) => this.handleRowKeyDown(e, item)}>
-                    <td role="gridcell">{"...".repeat(level)} {(hasChildren) ? expansionSymbol : undefined}</td>
+                    <td role="gridcell">
+                        {"...".repeat(level)}
+                        <button tabIndex={-1} onClick={(isExpanded)
+                            ? () => this.collapseItem(item)
+                            : () => this.expandItem(item) }>
+                            {(hasChildren) ? expansionSymbol : undefined}
+                        </button>
+                    </td>
                     { item.data.map((d) => {
                         return <td role="gridcell">
                             {d}
@@ -196,30 +203,11 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
                 break;
 
             case KeyCodes.ArrowRight:
-                {
-                    // TODO: avoid adding the item to expanded if we already have it there.
-                    if (!targetItem.children || targetItem.children.length === 0) {
-                        break;
-                    }
-
-                    this.setState({
-                        expandedItems: [targetItem.id, ... this.state.expandedItems],
-                    });
-                }
+                this.expandItem(targetItem);
                 break;
 
             case KeyCodes.ArrowLeft:
-                {
-                    if (!targetItem.children || targetItem.children.length === 0) {
-                        // TODO: should collapse up to parent.
-                        break;
-                    }
-
-                    // TODO: avoid adding the item to expanded if we already have it there.
-                    this.setState({
-                        expandedItems: this.state.expandedItems.filter((id) => id !== targetItem.id),
-                    });
-                }
+                this.collapseItem(targetItem);
                 break;
 
             default:
@@ -240,6 +228,29 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         newItem.focus();
         this.setState({
             selectedIndex: index,
+        });
+    }
+
+    private expandItem = (item: IItem) => {
+        // TODO: avoid adding the item to expanded if we already have it there.
+        if (!item.children || item.children.length === 0) {
+            return;
+        }
+
+        this.setState({
+            expandedItems: [item.id, ... this.state.expandedItems],
+        });
+    }
+
+    private collapseItem = (item: IItem) => {
+        if (!item.children || item.children.length === 0) {
+            // TODO: should collapse up to parent.
+            return;
+        }
+
+        // TODO: avoid adding the item to expanded if we already have it there.
+        this.setState({
+            expandedItems: this.state.expandedItems.filter((id) => id !== item.id),
         });
     }
 }
