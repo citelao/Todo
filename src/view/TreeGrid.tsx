@@ -36,15 +36,6 @@ interface ITreeViewSnapshot {
 export default class TreeGrid<T extends { [key: string]: any }> extends React.Component<ITreeViewProperties<T>, ITreeViewState> {
     constructor(props: ITreeViewProperties<T>) {
         super(props);
-        // this.state = {
-        //     selectedIndex: 0,
-        //     renderedItemCount: this.getRenderedItemCount(this.props.items?.map(this.props.renderItem || this.defaultRenderItem) || []),
-
-        //     // TODO: support changes
-        //     focusMode: "rows",
-
-        //     expandedItems: [],
-        // };
     }
 
     public static getDerivedStateFromProps<K extends { [key: string]: any }>(nextProps: ITreeViewProperties<K>, prevState?: ITreeViewState): ITreeViewState {
@@ -106,7 +97,8 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
     private renderRow = (item: IItem, index: number, array: IItem[], level = 1): ReactElement =>
     {
         const isFocusedOnRows = this.state.focusMode === "rows";
-        const isSelectedItem = index === this.state.selectedIndex; // TODO
+        const overallIndex = index; // TODO: we need to get the actual overall index here.
+        const isSelectedItem = overallIndex === this.state.selectedIndex;
         const hasChildren = item.children && item.children.length !== 0;
         const isExpanded = this.state.expandedItems.indexOf(item.id) !== -1;
         const expansionSymbol = (isExpanded) ? "▾" : "▸";
@@ -121,7 +113,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
                 aria-level={level}
                 aria-posinset={index + 1}
                 aria-setsize={array.length}
-                onClick={(e) => this.selectItem(e.currentTarget, index)}
+                onClick={(e) => this.selectItem(e.currentTarget, overallIndex)}
                 onKeyDown={(e) => this.handleRowKeyDown(e, item)}>
                     <td role="gridcell">{"...".repeat(level)} {(hasChildren) ? expansionSymbol : undefined}</td>
                     { item.data.map((d) => {
