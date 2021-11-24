@@ -1,3 +1,7 @@
+table[role="treegrid"] {
+    border-collapse: collapse;
+}
+
 table[role="treegrid"] [role=row][tabIndex="0"]:focus{
     background-color: rgba(0, 0, 0, 0.5);
 }

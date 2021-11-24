@@ -109,7 +109,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         const defaultHeaders = Object.keys((this.props.items || [])[0]);
         const headers = this.props.headers || defaultHeaders;
 
-        return <table role="treegrid">
+        return <table role="treegrid" cellPadding={0}>
             <thead>
                 <tr role="row">
                     {/* Indentation header */}

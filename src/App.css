@@ -37,14 +37,6 @@ table {
   width: 100%;
 }
 
-table tr {
-  display: flex;
-}
-
-table td {
-  display: block;
-}
-
 table .item-1 {
   flex-grow: 1;
 }
