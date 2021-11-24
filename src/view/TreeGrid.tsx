@@ -155,8 +155,12 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
                             {(hasChildren) ? expansionSymbol : undefined}
                         </button>
                     </td>
-                    { item.data.map((d) => {
-                        return <td role="gridcell">
+                    { item.data.map((d, i) => {
+                        const defaultHeaders = Object.keys((this.props.items || [])[0]);
+                        const headers = this.props.headers || defaultHeaders;
+                        const className = `item-${headers[i] || i}`;
+
+                        return <td role="gridcell" className={className}>
                             {d}
                         </td>;
                     })}

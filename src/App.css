@@ -32,3 +32,31 @@ body {
     transform: rotate(360deg);
   }
 }
+
+table {
+  width: 100%;
+}
+
+table tr {
+  display: flex;
+}
+
+table td {
+  display: block;
+}
+
+table .item-1 {
+  flex-grow: 1;
+}
+
+  table .item-1 input {
+    width: 100%;
+
+    appearance: default;
+    background: none;
+    color: inherit;
+    font: inherit;
+
+    border: none;
+    border-bottom: 1px solid white;
+  }
