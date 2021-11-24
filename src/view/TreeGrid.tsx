@@ -39,6 +39,8 @@ interface ITreeViewSnapshot {
     action: "recalculate_render_count"
 }
 
+const TABINDEX_DATA_ATTRIBUTE = "data-previous-tabindex";
+
 export default class TreeGrid<T extends { [key: string]: any }> extends React.Component<ITreeViewProperties<T>, ITreeViewState> {
     constructor(props: ITreeViewProperties<T>) {
         super(props);
@@ -221,6 +223,19 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         }
     }
 
+    private getTabbableChildren(el: HTMLElement): NodeListOf<Element> {
+        // TODO: a more complete list
+        const TABBLE_ITEMS = "input:not([tabindex=\"-1\"]):not([disabled]), a[href]"; 
+
+        return el.querySelectorAll(TABBLE_ITEMS);
+    }
+
+    // Children that were previously tabbable but we overrode their tabbability.
+    // We stored their previous tabindex in a data property.
+    private getPreviouslyTabbableChildren(el: HTMLElement): NodeListOf<Element> {
+        return el.querySelectorAll(`[${TABINDEX_DATA_ATTRIBUTE}]`);
+    }
+
     private selectItem = (currentTarget: HTMLElement, index: number) => {
         if (index < 0) {
             return;
@@ -230,11 +245,23 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
             return;
         }
 
-        // TODO: set tabindex to -1 on all tabbable items within the old row.
-        // TODO: restore tabindex to all tabbable items within the new row.
-
+        // TODO: we use a hacky way to set tabbability for all other elements in the table.
+        // TODO: we should set initial tabbability when first loaded.
+        const previousTabbable = this.getTabbableChildren(currentTarget.parentElement!);
+        previousTabbable.forEach((child) => {
+            (child as HTMLElement).setAttribute(TABINDEX_DATA_ATTRIBUTE, (child as HTMLElement).tabIndex.toString());
+            (child as HTMLElement).tabIndex = -1;
+        })
+        
         const newItem = currentTarget.parentElement!.children[index] as HTMLElement;
         newItem.focus();
+
+        // Restore focusability to all the elements within.
+        const childrenToMakeTabbable = this.getPreviouslyTabbableChildren(newItem);
+        childrenToMakeTabbable.forEach((child) => {
+            (child as HTMLElement).tabIndex = parseInt((child as HTMLElement).dataset[TABINDEX_DATA_ATTRIBUTE]!);
+        })
+
         this.setState({
             selectedIndex: index,
         });
