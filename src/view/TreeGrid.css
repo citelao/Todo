@@ -8,4 +8,10 @@ table[role="treegrid"] [role=row][tabIndex="0"]:focus{
     background: none;
     color: inherit;
     font-size: inherit;
+
+    width: 2rem;
 }
+
+    .expandButton:hover {
+        cursor: pointer;
+    }

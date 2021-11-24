@@ -148,13 +148,13 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
                 onClick={(e) => this.selectItem(e.currentTarget, overallIndex)}
                 onKeyDown={(e) => this.handleRowKeyDown(e, item)}>
                     <td role="gridcell">
-                        {"...".repeat(level)}
+                        {"...".repeat(level - 1)}
                         <button tabIndex={-1}
                             className="expandButton"
                             onClick={(isExpanded)
                                 ? () => this.collapseItem(item)
                                 : () => this.expandItem(item) }>
-                            {(hasChildren) ? expansionSymbol : undefined}
+                            {(hasChildren) ? expansionSymbol : ""}
                         </button>
                     </td>
                     { item.data.map((d, i) => {
