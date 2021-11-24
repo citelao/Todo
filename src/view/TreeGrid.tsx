@@ -16,6 +16,7 @@ interface IInternalItem extends IItem {
     renderedIndex: number | null;
 
     children?: IInternalItem[];
+    parentId: any | null;
 }
 
 interface ITreeViewProperties<T extends { [key: string]: any }> {
@@ -50,7 +51,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         const renderedItems = nextProps.items?.map(nextProps.renderItem || TreeGrid.defaultRenderItem) || [];
         const expandedItems = prevState?.expandedItems || [];
         return {
-            renderedItems: TreeGrid.convertToInternalItems(renderedItems, 0, prevState?.expandedItems).items,
+            renderedItems: TreeGrid.convertToInternalItems(renderedItems, 0, null, prevState?.expandedItems).items,
 
             selectedIndex: prevState?.selectedIndex || 0,
             renderedItemCount: TreeGrid.getRenderedItemCount(renderedItems, expandedItems),
@@ -69,7 +70,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         }
     };
 
-    private static convertToInternalItems(items: IItem[], startingIndex: number, expandedItems: number[] = []): { index: number, items: IInternalItem[] } {
+    private static convertToInternalItems(items: IItem[], startingIndex: number, parentId: number | null = null, expandedItems: number[] = []): { index: number, items: IInternalItem[] } {
         const DONT_RENDER_CHILDREN_SIGIL = -1;
 
         // Do a reduce to actually track the stuff we need throughout this operation.
@@ -78,12 +79,13 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
             const renderedIndex = (isRendered) ? acc.index : DONT_RENDER_CHILDREN_SIGIL;
             const shouldRenderChildren = (isRendered && expandedItems.indexOf(item.id) !== -1);
             const startingRenderIndex = (shouldRenderChildren) ? renderedIndex + 1 : DONT_RENDER_CHILDREN_SIGIL;
-            const renderedChildren = this.convertToInternalItems(item.children || [], startingRenderIndex, expandedItems);
+            const renderedChildren = this.convertToInternalItems(item.children || [], startingRenderIndex, item.id, expandedItems);
             const internalItem: IInternalItem = {
                 id: item.id,
                 data: item.data,
                 children: renderedChildren.items,
                 renderedIndex: renderedIndex,
+                parentId: parentId
             };
 
             return {
@@ -192,7 +194,7 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         }
     }
 
-    private handleRowKeyDown = (e: KeyboardEvent<HTMLElement>, targetItem: IItem) => {
+    private handleRowKeyDown = (e: KeyboardEvent<HTMLElement>, targetItem: IInternalItem) => {
         switch (e.key) {
             case KeyCodes.ArrowUp:
                 this.selectItem(e.currentTarget, this.state.selectedIndex - 1);
@@ -278,15 +280,31 @@ export default class TreeGrid<T extends { [key: string]: any }> extends React.Co
         });
     }
 
-    private collapseItem = (item: IItem) => {
+    private collapseItem = (item: IInternalItem) => {
         if (!item.children || item.children.length === 0) {
-            // TODO: should collapse up to parent.
+            if (item.parentId !== null) {
+                this.setState({
+                    expandedItems: this.state.expandedItems.filter((id) => id !== item.parentId),
+                });
+
+                // TODO: select parent ID.
+            }
             return;
         }
+        
+        const isExpandedItem = !!this.state.expandedItems.find((id) => id === item.id);
+        if (isExpandedItem) {
+            this.setState({
+                expandedItems: this.state.expandedItems.filter((id) => id !== item.id),
+            });
+        } else {
+            if (item.parentId !== null) {
+                this.setState({
+                    expandedItems: this.state.expandedItems.filter((id) => id !== item.parentId),
+                });
 
-        // TODO: avoid adding the item to expanded if we already have it there.
-        this.setState({
-            expandedItems: this.state.expandedItems.filter((id) => id !== item.id),
-        });
+                // TODO: select parent ID.
+            }
+        }
     }
 }
